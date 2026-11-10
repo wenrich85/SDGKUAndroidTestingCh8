@@ -11,15 +11,15 @@ class LoginValidator {
     val emailRegex = Regex("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$")
 
     fun validate(email: String, password: String): LoginError? {
-        if(!email.isNotEmpty()){
+        if (email.isEmpty()) {
             return LoginError.EMPTY_EMAIL
         }
 
-        if (!email.matches(emailRegex)){
+        if (!email.matches(emailRegex)) {
             return LoginError.INVALID_EMAIL
         }
 
-        if (password.length <= 12) {
+        if (password.length < 12) {
             return LoginError.SHORT_PASSWORD
         }
 

@@ -1,6 +1,9 @@
 package com.example.sdgkuandroidtestingch8
 
 import android.os.Bundle
+import android.view.LayoutInflater
+import android.widget.CheckBox
+import android.widget.TextView
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -24,6 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
 import com.example.sdgkuandroidtestingch8.ui.theme.LoginError
 import com.example.sdgkuandroidtestingch8.ui.theme.LoginValidator
 import com.example.sdgkuandroidtestingch8.ui.theme.SDGKUAndroidTestingCh8Theme
@@ -46,56 +50,77 @@ class MainActivity : ComponentActivity() {
 fun LoginValidatorScreen(
     modifier: Modifier = Modifier,
     loginValidator: LoginValidator = LoginValidator()
-){
+) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var feedback by remember { mutableStateOf("") }
 
-    Column(modifier = modifier.fillMaxSize()
-        .verticalScroll(rememberScrollState())
-        .padding(16.dp),
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically)
-        ) {
+    ) {
 
         OutlinedTextField(
             modifier = Modifier.testTag("EmailField"),
             value = email,
-            onValueChange = { email = it},
-            label = { Text("Email")}
+            onValueChange = { email = it },
+            label = { Text("Email") }
         )
 
         OutlinedTextField(
             modifier = Modifier.testTag("PasswordField"),
-
             value = password,
-            onValueChange = { password = it},
-            label = { Text("Email")}
+            onValueChange = { password = it },
+            label = { Text("Password") }
         )
 
-        Button(onClick={
-            feedback = when (loginValidator.validate(email, password)) {
-                LoginError.EMPTY_EMAIL -> "Email cannot be empty"
-                LoginError.INVALID_EMAIL -> "Email is invalid"
-                LoginError.SHORT_PASSWORD -> "Password must be at least 12 chars"
-                null -> "Login Siccessful"
-            }
-        }, Modifier.testTag("LoginButton")
+        RememberMeView()
 
-        )
-
-        {
+        Button(
+            onClick = {
+                feedback = when (loginValidator.validate(email, password)) {
+                    LoginError.EMPTY_EMAIL -> "Email cannot be empty"
+                    LoginError.INVALID_EMAIL -> "Email is invalid"
+                    LoginError.SHORT_PASSWORD -> "Password must be at least 12 chars"
+                    null -> "Login Successful"
+                }
+            },
+            modifier = Modifier.testTag("LoginButton")
+        ) {
             Text("Login")
         }
 
-        if (feedback.isNotEmpty()){
+        if (feedback.isNotEmpty()) {
             Text(
                 text = feedback,
-                modifier = Modifier.testTag("LoginButton")
+                modifier = Modifier.testTag("LoginFeedback")
             )
         }
-
     }
+}
+
+@Composable
+private fun RememberMeView() {
+    var rememberMe by remember { mutableStateOf(false) }
+
+    AndroidView(
+        factory = { context ->
+            LayoutInflater.from(context).inflate(R.layout.view_remember_me, null, false).apply {
+                findViewById<CheckBox>(R.id.remember_me_checkbox).setOnCheckedChangeListener { _, isChecked ->
+                    rememberMe = isChecked
+                }
+            }
+        },
+        update = { view ->
+            view.findViewById<CheckBox>(R.id.remember_me_checkbox).isChecked = rememberMe
+            val text = if (rememberMe) "Remember me is checked" else "Remember me is unchecked"
+            view.findViewById<TextView>(R.id.remember_me_text).text = text
+        }
+    )
 }
 
 @Composable
