@@ -23,7 +23,7 @@ class LoginStubTests {
         val repo = mock<UserRepository>()
         whenever(repo.passwordFor("daniel@sd.edu")).thenReturn("validpasswword123")
         val service = LoginService(userStore=repo)
-        val result = service.login("daniel@sd.edu", "validpasswword123")
+        val result = service.login("jgjgj@.sksk", "validpasswword123")
         assertEquals(LoginResult.WrongCredentials, result)
     }
 }
